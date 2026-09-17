@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EBZ Termine – Apple Kalender</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --primary: #0d4f7b;
+      --primary-2: #1a6fa5;
+      --accent: #5aa9e6;
+      --text: #1f2a37;
+      --muted: #586779;
+      --line: #dfe7f1;
+      --warning: #ee9b29;
+      --warning-bg: #fff4df;
+      --success: #2e8b57;
+      --shadow: 0 12px 30px rgba(15, 38, 63, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #edf4fc 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 18px 80px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #eaf3ff;
+      color: var(--primary);
+      border: 1px solid #cfe2fa;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 12px 24px rgba(13, 79, 123, 0.22);
+    }
+
+    .btn.primary:hover {
+      background: var(--primary-2);
+    }
+
+    .btn.secondary {
+      background: white;
+      color: var(--primary);
+      border-color: var(--line);
+    }
+
+    .legend {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.presence { background: var(--accent); }
+    .dot.exam { background: var(--warning); }
+
+    #events {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .event {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--accent);
+      border-radius: 18px;
+      padding: 18px 18px 14px;
+      box-shadow: 0 8px 20px rgba(15, 38, 63, 0.04);
+    }
+
+    .event.exam {
+      border-left-color: var(--warning);
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .event-title {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #edf5ff;
+      color: var(--primary);
+      border: 1px solid #d3e6ff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .event.exam .tag {
+      background: var(--warning-bg);
+      color: #a85d00;
+      border-color: #f5d7a1;
+    }
+
+    .meta {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 0.96rem;
+    }
+
+    .meta strong {
+      color: var(--text);
+    }
+
+    .location {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.93rem;
+    }
+
+    .empty {
+      background: var(--card);
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      color: var(--muted);
+      padding: 30px 18px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(15, 38, 63, 0.02);
+    }
+
+    @media (max-width: 600px) {
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>EBZ Immobilienfachwirt</h1>
+      <div class="pill">Termine</div>
+    </div>
+
+    <section class="hero">
+      <p>
+        Alle Präsenztermine und Klausurtermine in einer übersichtlichen Liste.
+        Du kannst die .ics-Datei herunterladen und direkt in deinen Apple Kalender importieren.
+      </p>
+
+      <div class="actions">
+        <a class="btn primary" href="EBZ_Termine_komplett.ics" download>ICS-Datei herunterladen</a>
+        <a class="btn secondary" href="EBZ_Termine_komplett.ics" target="_blank" rel="noopener">In Apple Kalender öffnen</a>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><span class="dot presence"></span> Präsenzlehrgang</span>
+        <span class="legend-item"><span class="dot exam"></span> Klausur</span>
+      </div>
+    </section>
+
+    <div id="events"></div>
+  </div>
+
+  <script>
+    async function loadCalendar() {
+      const container = document.getElementById('events');
+
+      try {
+        const response = await fetch('EBZ_Termine_komplett.ics');
+        if (!response.ok) throw new Error('ICS-Datei nicht gefunden');
+
+        const text = await response.text();
+        const events = parseICS(text);
+
+        if (!events.length) {
+          container.innerHTML = '<div class="empty">Keine Termine gefunden.</div>';
+          return;
+        }
+
+        events.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+        container.innerHTML = events.map(event => {
+          const isExam = /klausur/i.test(event.summary);
+          const tag = isExam ? 'Klausur' : 'Präsenz';
+          const dateText = formatDateRange(event.startDate, event.endDate, event.allDay);
+          const location = escapeHtml(event.location || 'Ort nicht angegeben');
+          const desc = escapeHtml(event.description || '');
+
+          return `
+            <article class="event ${isExam ? 'exam' : ''}">
+              <div class="event-header">
+                <h2 class="event-title">${escapeHtml(event.summary)}</h2>
+                <span class="tag">${tag}</span>
+              </div>
+
+              <p class="meta">
+                <strong>Datum:</strong> ${dateText}<br>
+                <strong>Ort:</strong> ${location}
+              </p>
+
+              <div class="location">${desc}</div>
+            </article>
+          `;
+        }).join('');
+      } catch (error) {
+        container.innerHTML = `
+          <div class="empty">
+            Die .ics-Datei konnte nicht geladen werden.<br>
+            Bitte prüfe, ob <strong>EBZ_Termine_komplett.ics</strong> im selben Ordner liegt.
+          </div>
+        `;
+      }
+    }
+
+    function parseICS(ics) {
+      const lines = ics.replace(/\\n/g, '\n').split(/\r?\n/);
+      const events = [];
+      let current = null;
+
+      for (const line of lines) {
+        if (line === 'BEGIN:VEVENT') {
+          current = {};
+          continue;
+        }
+
+        if (line === 'END:VEVENT') {
+          if (current && current.summary) {
+            events.push(current);
+          }
+          current = null;
+          continue;
+        }
+
+        if (!current) continue;
+
+        if (line.startsWith('SUMMARY')) {
+          const value = extractValue(line, 'SUMMARY');
+          current.summary = decodeICS(value);
+        } else if (line.startsWith('DTSTART')) {
+          const value = extractValue(line, 'DTSTART');
+          current.startDate = parseICSTime(value, line.includes('VALUE=DATE'));
+          current.allDay = line.includes('VALUE=DATE');
+        } else if (line.startsWith('DTEND')) {
+          const value = extractValue(line, 'DTEND');
+          current.endDate = parseICSTime(value, line.includes('VALUE=DATE'));
+        } else if (line.startsWith('LOCATION')) {
+          current.location = decodeICS(extractValue(line, 'LOCATION'));
+        } else if (line.startsWith('DESCRIPTION')) {
+          current.description = decodeICS(extractValue(line, 'DESCRIPTION'));
+        }
+      }
+
+      return events;
+    }
+
+    function extractValue(line, key) {
+      const match = line.match(new RegExp(`^${key}(?:;[^:]+)?:(.*)$`));
+      return match ? match[1] : '';
+    }
+
+    function parseICSTime(value, isDateOnly) {
+      if (!value) return new Date(0);
+
+      if (isDateOnly) {
+        const y = value.slice(0, 4);
+        const m = value.slice(4, 6);
+        const d = value.slice(6, 8);
+        return new Date(`${y}-${m}-${d}T00:00:00`);
+      }
+
+      const datePart = value.slice(0, 8);
+      const timePart = value.slice(9, 15); // HHMMSS
+      const y = datePart.slice(0, 4);
+      const m = datePart.slice(4, 6);
+      const d = datePart.slice(6, 8);
+
+      const hh = timePart.slice(0, 2);
+      const mm = timePart.slice(2, 4);
+      const ss = timePart.slice(4, 6);
+
+      return new Date(`${y}-${m}-${d}T${hh}:${mm}:${ss}`);
+    }
+
+    function formatDateRange(start, end, allDay) {
+      if (!start) return 'Unbekannt';
+
+      const startText = allDay
+        ? formatDateOnly(start)
+        : formatDateTime(start);
+
+      if (end && !allDay && end.getTime() !== start.getTime()) {
+        return `${startText} – ${formatDateTime(end)}`;
+      }
+
+      if (end && allDay && end.getTime() > start.getTime()) {
+        const endText = formatDateOnly(end);
+        return `${startText} – ${endText}`;
+      }
+
+      return startText;
+    }
+
+    function formatDateOnly(date) {
+      return new Intl.DateTimeFormat('de-DE', {
+        weekday: 'short',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    function formatDateTime(date) {
+      return new Intl.DateTimeFormat('de-DE', {
+        weekday: 'short',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    }
+
+    function decodeICS(value) {
+      return value
+        .replace(/\\\\,/g, ',')
+        .replace(/\\\\;/g, ';')
+        .replace(/\\\\n/g, '\n')
+        .replace(/\\\\N/g, '\n')
+        .replace(/\\,/g, ',')
+        .replace(/\\;/g, ';');
+    }
+
+    function escapeHtml(value = '') {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    loadCalendar();
+  </script>
+</body>
+</html>
